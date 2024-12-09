@@ -14,29 +14,40 @@ public class DoThi {
         this.danhSachCanh = new ArrayList<>();
     }
 
-    public void themCanh(String dinhNguon, String dinhDich, int trongSo) {
+    public void themCanh(String dinhNguon, String dinhDich, int trongSo) throws InvalidVertexException, InvalidWeightException, 
+            VertexNotFoundException {
+        // Kiểm tra nếu tên đỉnh không hợp lệ
+        if (dinhNguon == null || dinhDich == null || dinhNguon.isEmpty() || dinhDich.isEmpty()) {
+            throw new InvalidVertexException("Tên đỉnh không được để trống hoặc null");
+        }
+        // Kiểm tra nếu trọng số không hợp lệ
+        if (trongSo <= 0) {
+            throw new InvalidWeightException("Trọng số phải lớn hơn 0");
+        }
+        // Kiểm tra nếu đỉnh không tồn tại trong danh sách
+        if (!dinhList.contains(dinhNguon)) {
+            throw new VertexNotFoundException("Đỉnh nguồn không tồn tại trong danh sách đỉnh.");
+        }
+        if (!dinhList.contains(dinhDich)) {
+            throw new VertexNotFoundException("Đỉnh đích không tồn tại trong danh sách đỉnh.");
+        }
         danhSachCanh.add(new Canh(dinhNguon, dinhDich, trongSo));
     }
 
     public List<Canh> timCayKhungNhoNhat() {
         List<Canh> cayKhung = new ArrayList<>();
         Collections.sort(danhSachCanh); // Sắp xếp các cạnh theo trọng số từ nhỏ đến lớn
-
         TapHopRoiRac tapHop = new TapHopRoiRac(dinhList);
-
         for (Canh canh : danhSachCanh) {
             String gocNguon = tapHop.timCha(canh.getDinhNguon());
             String gocDich = tapHop.timCha(canh.getDinhDich());
-
             // Nếu cây khung đã đủ n - 1 cạnh, dừng vòng lặp
             if (cayKhung.size() == dinhList.size() - 1) {
                 break;
             }
-
             // Kiểm tra nếu u và v không thuộc cùng tập hợp
             if (!gocNguon.equals(gocDich)) {
-                // Thêm cạnh vào cây khung nhỏ nhất và gộp hai tập hợp
-                cayKhung.add(canh);
+                cayKhung.add(canh); // Thêm cạnh vào cây khung nhỏ nhất và gộp hai tập hợp
                 tapHop.hop(gocNguon, gocDich);
             }
             // Nếu u và v thuộc cùng tập hợp, bỏ qua cạnh này để tránh tạo chu trình
